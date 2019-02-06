@@ -5,9 +5,13 @@
 
 """
 
-
+import pandas as pd
 from pandas import DataFrame
 from sqlite3 import Connection
+from chardet import detect
+
+# set display max_colwidth
+pd.set_option("display.max_colwidth", 100)
 
 class SQLFormat(Connection):
     def __init__(self, connection):
@@ -40,3 +44,23 @@ class SQLFormat(Connection):
             columns.append(column[0])
         
         return result, columns
+
+    def format(self, query_string):
+        """Format Output
+        """
+        result, columns = self.query(query_string)
+
+        # store data
+        data = dict()
+        for i in columns:
+            data[i] = []
+
+        for row in result:
+            for element, column in zip(row, columns):
+                if isinstance(element, bytes):
+                    decode_char = element.decode(detect(element)["encoding"])
+                    data[column].append(decode_char)
+                else:
+                    data[column].append(element)
+        return pd.DataFrame(data)
+                
