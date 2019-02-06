@@ -1,0 +1,6 @@
+*DS_*
+*pyc
+*.ipynb_checkpoints
+
+// other files
+test*
